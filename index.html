@@ -112,6 +112,8 @@
         #wheelCanvas {
 
             display: block;
+            background: #ffffff;
+            border: 2px solid #dedcf8;
 
             width: 100%;
 
@@ -184,11 +186,14 @@
 
 
         .spin-button:disabled {
-
             opacity: 0.6;
-
             cursor: not-allowed;
+        }
 
+        .spin-button.unavailable {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
         }
 
 
@@ -255,28 +260,6 @@
         .modal-header .btn-close {
 
             filter: brightness(0) invert(1);
-
-        }
-
-
-        .password-input {
-
-            border-radius: 12px;
-
-            padding: 12px;
-
-            font-size: 16px;
-
-        }
-
-
-        .password-error {
-
-            color: #dc3545;
-
-            font-size: 14px;
-
-            display: none;
 
         }
 
@@ -391,7 +374,6 @@
     </div>
 
 
-
     <!-- Selected Task Popup -->
 
     <div
@@ -496,8 +478,6 @@
                     </button>
 
 
-                   
-
                 </div>
 
 
@@ -506,138 +486,6 @@
         </div>
 
     </div>
-
-
-
-    <!-- Password Popup -->
-
-    <div
-
-        class="modal fade"
-
-        id="passwordModal"
-
-        tabindex="-1"
-
-        aria-labelledby="passwordModalLabel"
-
-        aria-hidden="true">
-
-
-        <div class="modal-dialog modal-dialog-centered">
-
-
-            <div class="modal-content">
-
-
-                <div class="modal-header">
-
-
-                    <h5
-
-                        class="modal-title"
-
-                        id="passwordModalLabel">
-
-                        Enter Password
-
-                    </h5>
-
-
-                    <button
-
-                        type="button"
-
-                        class="btn-close"
-
-                        data-bs-dismiss="modal"
-
-                        aria-label="Close">
-
-                    </button>
-
-
-                </div>
-
-
-                <div class="modal-body p-4">
-
-
-                    <p class="text-muted">
-
-                        Enter today's password to spin again.
-
-                    </p>
-
-
-                    <form id="passwordForm">
-
-
-                        <div class="mb-3">
-
-
-                            <label
-
-                                for="spinPassword"
-
-                                class="form-label">
-
-                                Password
-
-                            </label>
-
-
-                            <input
-
-                                type="password"
-
-                                class="form-control password-input"
-
-                                id="spinPassword"
-
-                                placeholder="Enter password"
-
-                                autocomplete="off"
-
-                                required>
-
-
-                        </div>
-
-
-                        <div
-
-                            id="passwordError"
-
-                            class="password-error mb-3">
-
-                            Incorrect password. Please try again.
-
-                        </div>
-
-
-                        <button
-
-                            type="submit"
-
-                            class="spin-button w-100">
-
-                            Verify & Spin
-
-                        </button>
-
-
-                    </form>
-
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
 
 
     <!-- Bootstrap JS -->
@@ -648,7 +496,6 @@
 
     </script>
 
- 
 
     <script>
 
@@ -755,18 +602,11 @@
 
             'Act like a hotel receptionist welcoming your teammates to the office. Answer their questions in a funny way.',
 
-                    'Rampo Walk like a model for 1 Min',
-
-            'Make your funniest face - 3 for 1 Min',
-
-            'Say 3 tongue twisters without mistakes - each one 5 times faster'
-
 
             'Perform a 1-minute dance in a robot style.'
 
 
         ];
-
 
 
         // =========================================
@@ -794,10 +634,7 @@
             document.getElementById('taskModal')
 
         );
-
-
-
-        // =========================================
+// =========================================
 
         // WHEEL VARIABLES
 
@@ -812,7 +649,6 @@
         let currentRotation = 0;
 
         let isSpinning = false;
-
 
 
         const colors = [
@@ -834,8 +670,7 @@
             '#EC4899'
 
         ];
-// =========================================
-
+        // =========================================
         // DRAW WHEEL
 
         // =========================================
@@ -871,14 +706,12 @@
             ctx.rotate(currentRotation);
 
 
-
             for (let i = 0; i < totalTasks; i++) {
 
 
                 const startAngle = i * sliceAngle;
 
                 const endAngle = startAngle + sliceAngle;
-
 
 
                 // Wheel slice
@@ -922,7 +755,6 @@
                 ctx.stroke();
 
 
-
                 // Task number
 
                 const middleAngle = startAngle + sliceAngle / 2;
@@ -963,9 +795,7 @@
             }
 
 
-
             ctx.restore();
-
 
 
             // Center circle
@@ -1003,7 +833,6 @@
             ctx.stroke();
 
 
-
             ctx.fillStyle = '#5B4BDB';
 
 
@@ -1030,7 +859,6 @@
         }
 
 
-
         // =========================================
 
         // SHOW SELECTED TASK
@@ -1053,7 +881,6 @@
         }
 
 
-
         // =========================================
 
         // SPIN WHEEL
@@ -1061,8 +888,42 @@
         // =========================================
 
 
+        // =========================================
+        // SPIN TIME CONTROL
+        // Spin is available only from 9:45 AM to 10:10 AM.
+        // =========================================
+
+        function isSpinTimeAvailable() {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            const startMinutes = 9 * 60 + 45;   // 09:45 AM
+            const endMinutes = 10 * 60 + 10;    // 10:10 AM
+
+            return currentMinutes >= startMinutes &&
+                   currentMinutes <= endMinutes;
+        }
+
+        function updateSpinButton() {
+            if (isSpinTimeAvailable()) {
+                spinButton.textContent = 'SPIN THE WHEEL';
+                spinButton.disabled = false;
+                spinButton.classList.remove('unavailable');
+            } else {
+                spinButton.textContent = 'NOT AVAILABLE';
+                spinButton.disabled = true;
+                spinButton.classList.add('unavailable');
+            }
+        }
+
+
         function spinWheel() {
 
+            // Final protection: check the current time again.
+            if (!isSpinTimeAvailable()) {
+                updateSpinButton();
+                return;
+            }
 
             if (isSpinning) return;
 
@@ -1073,13 +934,11 @@
             spinButton.disabled = true;
 
 
-
             const selectedIndex = Math.floor(
 
                 Math.random() * totalTasks
 
             );
-
 
 
             // Pointer is at the top (-90 degrees)
@@ -1091,7 +950,6 @@
                 Math.PI / 2;
 
 
-
             const fullSpins = 6 + Math.floor(Math.random() * 3);
 
 
@@ -1101,13 +959,11 @@
             let delta = targetAngle - currentMod;
 
 
-
             if (delta < 0) {
 
                 delta += Math.PI * 2;
 
             }
-
 
 
             const startRotation = currentRotation;
@@ -1122,12 +978,10 @@
                 delta;
 
 
-
             const duration = 4500;
 
 
             const startTime = performance.now();
-
 
 
             function animate(now) {
@@ -1145,11 +999,9 @@
                 );
 
 
-
                 // Ease-out animation
 
                 const eased = 1 - Math.pow(1 - progress, 4);
-
 
 
                 currentRotation =
@@ -1159,9 +1011,7 @@
                     (endRotation - startRotation) * eased;
 
 
-
                 drawWheel();
-
 
 
                 if (progress < 1) {
@@ -1193,64 +1043,32 @@
             }
 
 
-
             requestAnimationFrame(animate);
 
         }
-
         // =========================================
-        // SPIN TIME WINDOW
-        // Only available from 9:45 AM to 10:10 AM
-        // Uses the browser's current local time.
+        // INITIAL SPIN BUTTON
         // =========================================
-
-        function isSpinTimeAvailable() {
-            const now = new Date();
-
-            const currentMinutes =
-                now.getHours() * 60 + now.getMinutes();
-
-            const startMinutes = 9 * 60 + 45;   // 09:45 AM
-            const endMinutes = 10 * 60 + 10;    // 10:10 AM
-
-            return (
-                currentMinutes >= startMinutes &&
-                currentMinutes <= endMinutes
-            );
-        }
-
-        function updateSpinButtonState() {
-            if (isSpinTimeAvailable()) {
-                spinButton.disabled = false;
-                spinButton.textContent = 'SPIN';
-                spinButton.classList.remove('not-available');
-            } else {
-                spinButton.disabled = true;
-                spinButton.textContent = 'Not Available';
-                spinButton.classList.add('not-available');
-            }
-        }
 
         spinButton.addEventListener('click', function () {
-            // Check the exact current browser time again before spinning.
-            if (!isSpinTimeAvailable() || isSpinning) {
-                updateSpinButtonState();
+            if (!isSpinTimeAvailable()) {
+                updateSpinButton();
                 return;
             }
 
             spinWheel();
         });
 
-        // Update immediately and keep checking the current time.
-        updateSpinButtonState();
+        // Update immediately and then every second.
+        updateSpinButton();
+        setInterval(updateSpinButton, 1000);
 
-        setInterval(function () {
-            updateSpinButtonState();
-        }, 1000);
-
-// =========================================
-
+        // =========================================
         // INITIAL WHEEL DRAW
+        // =========================================
+
+
+        
 
         // =========================================
 
