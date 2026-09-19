@@ -7,22 +7,7 @@
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta property="og:title" content="Funny Office Tasks - Spin Wheel">
-<meta property="og:description" content="Spin the wheel and find your funny office challenge!">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://arunaakash-114.github.io/office-funny-tasks-list/">
-
-<meta property="og:image" content="https://png.pngtree.com/png-clipart/20240420/original/pngtree-funny-cartoon-characte-png-image_14907533.png">
-<meta property="og:image:secure_url" content="https://png.pngtree.com/png-clipart/20240420/original/pngtree-funny-cartoon-characte-png-image_14907533.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1024">
-<meta property="og:image:height" content="1024">
-<meta property="og:image:alt" content="Funny cartoon character">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Funny Office Tasks - Spin Wheel">
-<meta name="twitter:description" content="Spin the wheel and find your funny office challenge!">
-<meta name="twitter:image" content="https://png.pngtree.com/png-clipart/20240420/original/pngtree-funny-cartoon-characte-png-image_14907533.png">
+ 
     <title>Funny Office Tasks - Spin Wheel</title>
 
 
@@ -511,18 +496,7 @@
                     </button>
 
 
-                    <button
-
-                        type="button"
-
-                        class="spin-button"
-
-                        id="spinAgainButton">
-
-                        Spin Again
-
-                    </button>
-
+                   
 
                 </div>
 
@@ -674,7 +648,7 @@
 
     </script>
 
-
+ 
 
     <script>
 
@@ -803,31 +777,15 @@
 
         const spinButton = document.getElementById('spinButton');
 
-        const spinAgainButton = document.getElementById('spinAgainButton');
-
 
         const selectedTask = document.getElementById('selectedTask');
 
         const taskNumber = document.getElementById('taskNumber');
 
 
-        const passwordForm = document.getElementById('passwordForm');
-
-        const spinPassword = document.getElementById('spinPassword');
-
-        const passwordError = document.getElementById('passwordError');
-
-
         const taskModal = new bootstrap.Modal(
 
             document.getElementById('taskModal')
-
-        );
-
-
-        const passwordModal = new bootstrap.Modal(
-
-            document.getElementById('passwordModal')
 
         );
 
@@ -870,41 +828,7 @@
             '#EC4899'
 
         ];
-
-
-
-        // =========================================
-
-        // GENERATE TODAY'S PASSWORD
-
-        // FORMAT: DDMMYYYY
-
-        // =========================================
-
-
-        function getTodayPassword() {
-
-
-            const today = new Date();
-
-
-            const day = String(today.getDate()).padStart(2, '0');
-
-
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-
-
-            const year = today.getFullYear();
-
-
-            return `${day}${month}${year}`;
-
-
-        }
-
-
-
-        // =========================================
+// =========================================
 
         // DRAW WHEEL
 
@@ -1143,9 +1067,6 @@
             spinButton.disabled = true;
 
 
-            spinAgainButton.disabled = true;
-
-
 
             const selectedIndex = Math.floor(
 
@@ -1258,9 +1179,6 @@
                     spinButton.disabled = false;
 
 
-                    spinAgainButton.disabled = false;
-
-
                     showTask(selectedIndex);
 
 
@@ -1274,162 +1192,57 @@
 
         }
 
-
-
+        // =========================================
+        // SPIN TIME WINDOW
+        // Only available from 9:45 AM to 10:10 AM
+        // Uses the browser's current local time.
         // =========================================
 
-        // INITIAL SPIN BUTTON
+        function isSpinTimeAvailable() {
+            const now = new Date();
 
-        // No password required for the first spin
+            const currentMinutes =
+                now.getHours() * 60 + now.getMinutes();
 
-        // =========================================
+            const startMinutes = 9 * 60 + 45;   // 09:45 AM
+            const endMinutes = 10 * 60 + 10;    // 10:10 AM
 
+            return (
+                currentMinutes >= startMinutes &&
+                currentMinutes <= endMinutes
+            );
+        }
 
-        spinButton.addEventListener(
+        function updateSpinButtonState() {
+            if (isSpinTimeAvailable()) {
+                spinButton.disabled = false;
+                spinButton.textContent = 'SPIN';
+                spinButton.classList.remove('not-available');
+            } else {
+                spinButton.disabled = true;
+                spinButton.textContent = 'Not Available';
+                spinButton.classList.add('not-available');
+            }
+        }
 
-            'click',
-
-            spinWheel
-
-        );
-
-
-
-        // =========================================
-
-        // SPIN AGAIN BUTTON
-
-        // Open password popup
-
-        // =========================================
-
-
-        spinAgainButton.addEventListener(
-
-            'click',
-
-            function () {
-
-
-                // Close task popup
-
-                taskModal.hide();
-
-
-                // Clear old password
-
-                spinPassword.value = '';
-
-
-                passwordError.style.display = 'none';
-
-
-                // Open password popup
-
-                setTimeout(function () {
-
-
-                    passwordModal.show();
-
-
-                    setTimeout(function () {
-
-                        spinPassword.focus();
-
-                    }, 300);
-
-
-                }, 300);
-
-
+        spinButton.addEventListener('click', function () {
+            // Check the exact current browser time again before spinning.
+            if (!isSpinTimeAvailable() || isSpinning) {
+                updateSpinButtonState();
+                return;
             }
 
-        );
+            spinWheel();
+        });
 
+        // Update immediately and keep checking the current time.
+        updateSpinButtonState();
 
+        setInterval(function () {
+            updateSpinButtonState();
+        }, 1000);
 
-        // =========================================
-
-        // PASSWORD VERIFICATION
-
-        // =========================================
-
-
-        passwordForm.addEventListener(
-
-            'submit',
-
-            function (event) {
-
-
-                event.preventDefault();
-
-
-
-                const enteredPassword =
-
-                    spinPassword.value.trim();
-
-
-
-                const todayPassword =
-
-                    getTodayPassword();
-
-
-
-                if (enteredPassword === todayPassword) {
-
-
-                    // Correct password
-
-                    passwordError.style.display = 'none';
-
-
-                    passwordModal.hide();
-
-
-
-                    // Start next spin
-
-                    setTimeout(function () {
-
-
-                        spinWheel();
-
-
-                    }, 300);
-
-
-
-                } else {
-
-
-                    // Wrong password
-
-                    passwordError.textContent =
-
-                        'Incorrect password. Please try again.';
-
-
-                    passwordError.style.display = 'block';
-
-
-                    spinPassword.value = '';
-
-
-                    spinPassword.focus();
-
-
-                }
-
-            }
-
-        );
-
-
-
-        // =========================================
+// =========================================
 
         // INITIAL WHEEL DRAW
 
